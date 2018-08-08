@@ -4,21 +4,19 @@
 
 This report is a first attempt to organize and analyse data on distrits, district governors and public perceptions, in order to identify correlations and provide the government with data on such possible correlations.
 
-The report is divided in three parts: part one established the profile of districts, per grade and per categorization (peri-urban, remote, with natural resources, with poppy cultivation, proximity with highways) as well as draws a profile of district governors (age, ethnicity, level of education, native/not-native from province where serving and type of appointment).
+The report is divided in two main parts. Part 1 established the profile of districts, per grade and per categorization (peri-urban, remote, with natural resources, with opium poppy cultivation, access to highways) as well as draws a profile of district governors (age, ethnicity, level of education, native/not-native from province where serving, and type of appointment). Part 2 looks into public perceptions on security, optimism, confidence in the judiciary, government's effort in improving living conditions, and experience of corruption at district governor's office/municipalities, and analyses the correlations between these perceptions and the profiles of districts and governors.
 
-The key findings of the first part are:
-[ADD]
+The following are the main findings of this report:
 
-The second part looks into public perceptions on security, optimism, confidence in the judiciary, living conditions and corruption and analyses the correlations between these perceptions and the profiles of districts and governors.
-
-The key findings of the second part are:
-[ADD]
-
-In the third (conclusions) part, the report tries to present the overall correlations between these three dimensions (district profiles, governors's profiles and perceptions). 
-
-This correlations analysis shows that:
-[ADD]
-
+-	Districts with higher grade, while have better endowments (e.g. security, proximity, highway, mines, and poppy cultivation), their residents hold more negative views, such as lower perception of optimism and perception that government has been unsuccessful in improving living conditions. This counter-intuitive relationship could be explained by differences in expectation among residents of grade 1, grad2 and grade 3 districts. 
+-	Access to highway is correlated with positive views about the country’s future and feeling more secure. Access to highway is also correlated with higher level of opium poppy cultivation and experience of corruption while district governors’ office or municipalities.
+-	Security is correlated with district grade, but it is not correlated with other district characteristics at macro level. Furthermore, security has positive relationship with competitive type of appointments and a negative relationship with nativity of district governors. Security is correlated with negative perceptions as well.
+-	Proximity to provincial centers is correlated with positive public perceptions about optimism and about government improving living conditions, but negative perceptions about feeling safety.
+-	Opium poppy cultivation is negatively correlated with presence of natural resources (mines) in a district, but has a positive relation with access to highway. Furthermore, opium poppy cultivation is positively correlated with public optimism, positive perceptions about government in improving living conditions. Furthermore, opium poppy cultivation is associated with lower level of reported experience of corruption at the district governors’ office and municipalities, which could be due to lack of access to governors’ office and municipalities in such areas. However, opium poppy cultivation has strong correlation with insecurity and public perception of feeling unsafe.
+-	Older district governors are associated with public optimism, better security situation and public perception of feeling safe. Older age is also associated with lower level of opium poppy cultivation. Age did not have a relationship with the experience of corruption at district governors’ office and municipalities.
+-	More educated district governors are associated with competitive hiring process and better security. However, more education has a positive relationship with greater level of experience of corruption at district governors’ office and municipalities.
+-	Native district governors are associated with insecurity and higher level of opium poppy cultivation. Nativity does not have any relationship with public perceptions at the national level.
+-	Competitively hired district governors are associated with higher level of education, non-nativity and better security. However, there is no relationship between hiring process and public perceptions.
 
 \newpage
 
@@ -56,11 +54,11 @@ District Governors:
 
 - District governors who are more educated and non-native to the province of their service appears to be correlated with greater confidence in the judicial system in the residents of their district. This relationship albeit strong does not indicate a causal relationship as district governors do not have direct role in justice sector.
 
-This first report provides evidence for a number of (intuitive) claims. Access to highway contributes to economic development and better security of the districts. The location of districts are important predictors of economic development and security. Peri-urban districts are more vibrant economically compared to non-peri-urban district. Frontier districts have the potential to economic development compared to remote ones given better security is ensured. It is the remote and central districts that are in danger of stagnant economic conditions and worse security conditions. 
+This first report provides evidence for a number of (intuitive) claims. Access to highway contributes to economic development and better security of the districts. The location of districts are important predictors of economic development and security. Peri-urban districts are more vibrant economically compared to non-peri-urban district. Frontier districts have the potential to economic development compared to remote ones given better security is ensured. It is the remote and central districts that are in danger of stagnant economic conditions and worse security conditions.
 
 Higher education of district governors, non-nativity to the provinces they serve, and older age are predictors of relatively better security and a perception of a better judiciary. Yet, it is difficult to have older governors with higher educations. Laying off district governors and constant replacements and reshuffles may contribute to a lower sense of confidence in the judiciary and legitimacy of the central government. An almost absence of female district governors (with an exception of 3) begs the question whether gender equity is being considered at the grassroots level.
 
-This is the first time these data are collected and analyzed in a systematic manner to inform policymaking. There is a need to systematically gather and analyze these data on a regular basis for better local governance.
+This is the first time these data are collected and analyzed in a systematic manner to inform policymaking. There is a need to systematically gather and analyze more data on a regular basis for better local governance.
 
 \newpage
 
