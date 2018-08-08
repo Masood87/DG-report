@@ -1,0 +1,41 @@
+---
+title: \vspace{3.5in}District Governor's Report
+date: "`r format(Sys.Date(), '%B %e, %Y')`"
+header-includes: #allows you to add in your own Latex packages
+- \usepackage{float}
+- \floatplacement{figure}{H}
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+---
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\newpage
+
+```{r child="p0 pdf.Rmd"}
+```
+
+\newpage
+
+```{r child="p1 pdf.Rmd"}
+```
+
+```{r child="p2 word.Rmd"}
+```
+
+\newpage
+
+```{r child="p3 word.Rmd"}
+```
+
+\newpage
+
+```{r child="p4 word.Rmd"}
+```
+
+\newpage
+\listoftables
+\newpage
+\listoffigures
