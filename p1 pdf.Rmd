@@ -287,7 +287,7 @@ df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", 
   labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x=element_text(angle=90, vjust = .5))
 ```
 
-Insecure district on average had more governors that were appointed through an uncompetitive process than secure districts. However, there is a slight uptick in the share of uncompetitive hirings governors in secure districts in the past one year. This trend corresponds with an overall growth in uncompetitive recruitments of district governors, which is discussed in Section 1.2.5.
+Insecure district on average had more governors that were appointed through an uncompetitive process than secure districts. However, there is a slight uptick in the share of uncompetitive hirings governors in secure districts in the past one year. This trend corresponds with an overall growth in uncompetitive recruitments of district governors, which is discussed in Section Appointment / Selection of District Governors.
 
 ```{r echo=FALSE, fig.cap="Relationship between district security and type of appointment of district governors"}
 df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", "competitiveHiring")] %>% 
@@ -300,7 +300,7 @@ df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", 
 
 ### Frontier Districts and Districts with Land Ports
 
-Afghanistan has 82 frontier districts. 44 districts are in 11 provinces border Pakistan, 10 districts in 3 provinces border Iran, and 36 districts in 8 provinces border Tajikistan, Uzbekistan, Turkmenistan, and China. There are five districts that border more than one country. In some cases, being a frontier border is associated with negative security situation, such as districts that border Pakistan and Turkmenistan. Districts that share a border with Pakistan and Turkmenistan are also the biggest producers of opium poppy--these districts accounted for three-quarter of all opium poppy cultivated in 2017. Security and opium poppy cultivation seem to have a strong association--see Section 1.1.7 for more details.
+Afghanistan has 82 frontier districts. 44 districts are in 11 provinces border Pakistan, 10 districts in 3 provinces border Iran, and 36 districts in 8 provinces border Tajikistan, Uzbekistan, Turkmenistan, and China. There are five districts that border more than one country. In some cases, being a frontier border is associated with negative security situation, such as districts that border Pakistan and Turkmenistan. Districts that share a border with Pakistan and Turkmenistan are also the biggest producers of opium poppy--these districts accounted for three-quarter of all opium poppy cultivated in 2017. Security and opium poppy cultivation seem to have a strong association--see Section Poppy Opium Cultivation for more details.
 
 Among 82 frontier districts, 8 have formal land ports with its neighbors. These land ports are situated in 9 provinces connecting Afghanistan with five of its neighboring countries. All land ports are located in districts other than provincial capitals, except for Zaranj city which is also the capital of Nimroz province in the South West Afghanistan. The map below shows frontier districts and districts with ports.
 
@@ -360,7 +360,7 @@ df2[, c("province", "district", "date", "border", "competitiveHiring")] %>% grou
 sbDist <- unique(df[df$suburb=="Peri-Urban Districts", c("province", "district")]) %>% nrow
 ```
 
-There are `r sbDist` peri-urban districts that neighbor 34 provincial centers. Because of proximity to provincial centers, these districts have a better transportation infrastructure and have better economic conditions. Furthermore, peri-urban districts on average have lower rate of opium poppy cultivation, unless they border Pakistan and Iran (Section 1.1.7 provides more details).
+There are `r sbDist` peri-urban districts that neighbor 34 provincial centers. Because of proximity to provincial centers, these districts have a better transportation infrastructure and have better economic conditions. Furthermore, peri-urban districts on average have lower rate of opium poppy cultivation, unless they border Pakistan and Iran (Section Poppy Opium Cultivation provides more details).
 
 Being a peri-urban district could imply greater connectivity and more population. As such, there are more districts in vicinity of provincial centers that are grade 1 and 2 than districts that are detached from provincial centers. The relation between access to highway and being a peri-urban district is a positive one, with peri-urban districts having more access to highway than districts detached from provincial centers.
 

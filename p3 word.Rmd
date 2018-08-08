@@ -41,8 +41,8 @@ On average, areas with Uzbek and Hazara population have reported less instances 
 
 ## POPPY CULTIVATION
 
-```{r opium, echo=FALSE, out.width="100%", fig.cap="Opium poppy cultivation in Afghanistan (2017)", fig.subcap="Sources: Afghanistan opium cultivation and production 2016. UNODC/Ministry of Counter Narcotics--Government of Afghanistan"}
-include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/opium cultivation by district (2017).png")
+```{r opium2017, echo=FALSE, out.width="100%", fig.cap="Opium poppy cultivation in Afghanistan (2017)", fig.subcap="Sources: Afghanistan opium cultivation and production 2016. UNODC/Ministry of Counter Narcotics--Government of Afghanistan"}
+knitr::include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/opium cultivation by district (2017).png")
 ```
 
 In 1396 (2017), an estimated 328,000 hectares of land were used to cultivate opium poppy, which is the highest record to date. The opium poppy is entirely within the shadow economy which does not contribute directly to Afghanistan's economy, and the income from the opium poppy is believed to be a source of financing for the insurgent groups such as the Taliban. Southern region remains the top cultivating regions in the country with 197,207 hectares of land (60% of total), and Helmand province remains the top cultivating province with 144,018 hectares of land (44% of total). The growth in opium poppy cultivation has been so high in Helmand province that the area under cultivation in 1396 (2017) in Helmand was about same as the whole country in 1391 (2012).
