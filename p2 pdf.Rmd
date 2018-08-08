@@ -91,9 +91,7 @@ filter(df, enddate == as.Date("1396-12-30")) %>% arrange(desc(birthyear)) %>%
   kable(col.names = c("Province", "District", "Age"), caption = "Youngest District Governors")
 ```
 
-The age of district governors appears to have relationship with some districts' geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had older district governors in the past 4 years. Districts with natural resources, ports, or frontier districts along Pakistan border have younger governors on average. Younger governors are also associated with greater opium poppy cultivation. Districts' security condition or having highway cross the district does not appear to have clear relationship with the age of district governors.
-
-The age of district governors appears to have some relationship with districts' geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had significantly older district governors in the past 4 years. Resource rich districts which have any type of mines or ports, or borders a foreign country other than Pakistan, have younger district governors on average. There is also a negative relationship between district governors age and the opium poppy cultivation, with younger governors corresponding with greater opium poppy cultivation. Districts' security condition or having highway cross the district does not appear to have clear relationship with the age of district governors. Figures below visualizes the relationship between the district characteristics and age of their governors at the national level across time.
+The age of district governors appears to have relationship with some districts’ geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had older district governors in the past 4 years. Districts with natural resources, ports, or frontier districts along Pakistan border have younger governors on average. Younger governors are also associated with greater opium poppy cultivation. Districts’ security condition or having highway cross the district does not appear to have clear relationship with the age of district governors. The Figure below shows the relationship between district security status and age of their governors at the national level, across time.
 
 ```{r echo=FALSE, fig.cap="Relationship between district governors' age and districts' security status"}
 df2[, c("province", "district", "date", "ageGrps2", "secureBinary")] %>% 
@@ -209,17 +207,18 @@ df2[, c("province", "district", "date", "education", "majEthnic")] %>% group_by(
 
 ```{r include=FALSE}
 ethnicity96 <- filter(df2, date == as.Date("1396-12-30")) %>% {table(.$majEthnic, useNA = "ifany")} %>% 
-  prop.table() %>% {round(.*100, 1)} %>% data.frame() %>% arrange(desc(Freq)) %>% mutate(Freq = format(Freq, nsmall = 1))
+  prop.table() %>% {round(.*100, 1)} %>% data.frame() %>% arrange(desc(Freq)) %>% 
+  mutate(Freq = format(Freq, nsmall = 1))
 majethnic96 <- ethnicity96 %>% filter(Var1 %in% c("Pashtun", "Tajik", "Uzbek", "Hazara")) %>% 
   mutate(Freq = as.numeric(Freq)) %>% {sum(.[[2]])}
 ```
 
-In the last four years, district governors belonged to 14 different ethnic groups. Majority (`r majethnic96`%) of them belong to 4 major ethnic groups. `r ethnicity96[1,1]` ethnic governors accounts for the largest share of district governors (`r ethnicity96[1,2]`%), followed by `r ethnicity96[2,1]` (`r ethnicity96[2,2]`%), `r ethnicity96[3,1]` (`r ethnicity96[3,2]`%) and `r ethnicity96[4,1]` (`r ethnicity96[4,2]`%). Looking at the 4-year trend, the share of Pashtun and Tajik governors have increased slightly.
+In the last four years, district governors belonged to 14 different ethnic groups. Majority (`r majethnic96`%) of them belong to 4 major ethnic groups. `r ethnicity96[1,1]` ethnic governors accounts for the largest share of district governors (`r ethnicity96[1,2]`%), followed by `r ethnicity96[2,1]` (`r ethnicity96[2,2]`%), `r ethnicity96[3,1]` (`r ethnicity96[3,2]`%) and `r ethnicity96[4,1]` (`r ethnicity96[4,2]`%). Comparing to when the National Unity Government was established, the overall share of ethnic groups has not changed significantly.
 
 ```{r echo=FALSE, fig.cap="Change in ethnicity of District governors since inception of NUG"}
-filter(df2, date %in% c(nugIncept, as.Date("1396-12-30"))) %>% .[, c("majEthnic", "date")] %>% table(useNA = "ifany") %>% 
-  prop.table(2) %>% data.frame %>% filter(!is.na(majEthnic)) %>% ggplot(aes(majEthnic, Freq, fill = date)) + theme_bw() + 
-  labs(x="", y="Ratio", fill="") + geom_col(position = "dodge")
+filter(df2, date %in% c(nugIncept, as.Date("1396-12-30"))) %>% group_by(date, majEthnic) %>% tally() %>%
+  ggplot(aes(majEthnic, n, fill = as.factor(date))) + geom_col(position = "dodge") + theme_bw() +
+  labs(x="", y="Number of District Governors", fill="")
 ```
 
 ```{r include=FALSE}
@@ -298,7 +297,7 @@ df2[, c("prov", "district", "date", "native")] %>% group_by(date, native) %>% ta
   geom_vline(xintercept = nugIncept, col = "navy") + labs(x="", y="Ratio", fill="Age")
 ```
 
-Native district governors tend to have more presence in the pre-urban districts. Another notable difference is districts bordering Pakistan have more non-native governors, while other districts bordering countries other than Pakistan have more native governors than average. The share of native governors is also higher among districts that are classified as highly insecure. Moreover, almost all governors of districts with ports and districts classified as grade 1 district used to be native until mid-1395. Districts with highways are also more likely to have native governors. The relationship between security and whether district governor is native does not appear to be strong--figure below visualizes that.
+Native district governors tend to have more presence in the peri-urban districts. Another notable difference is districts bordering Pakistan, which have more non-native governors, while other districts bordering countries other than Pakistan have more native governors than the average. The share of native governors is also higher among districts that are classified as highly insecure. Moreover, almost all governors of districts with ports and districts classified as grade 1 district used to be native until mid-1395. Districts with highways are also more likely to have native governors. The relationship between security and whether district governor is native does not appear to be strong, as shown by the figure below.
 
 ```{r echo=FALSE, fig.cap="Relationship between district governors' nativity and districts' security status"}
 df2[, c("province", "district", "date", "native", "secure")] %>% group_by(date, native, secure) %>% tally %>% 
@@ -312,7 +311,7 @@ nativeAge <- filter(df2, date == as.Date("1396-12-30")) %>% group_by(native) %>%
   mutate(age = format(round(age, 1), 1))
 ```
 
-Native district governors are on average older (`r nativeAge[2,2]` years) than non-native district governors (`r nativeAge[1,2]`. Non-native governors, being on average younger, also have a higher level of education on average, and are appointed more likely via a competitive process.
+Native district governors are on average older (`r nativeAge[2,2]` years) than non-native district governors (`r nativeAge[1,2]` years). Non-native governors, being on average younger, also have a higher level of education on average, and are appointed more likely to be appointed via a competitive process.
 
 ```{r echo=FALSE, fig.cap="Relationship between nativity and appointment type of district governors"}
 df2[, c("province", "district", "date", "native", "competitiveHiring")] %>% 
@@ -335,7 +334,7 @@ dismiss <- nugHired %>% filter(enddate < as.Date("1396-12-30")) %>% nrow()
 dismissLen <- nugHired %>% filter(enddate < as.Date("1396-12-30")) %>% mutate(int = as.numeric(enddate - startdate)) %>% select(int) %>% {sum(.)/dismiss} %>% round(1)
 ```
 
-Since the inception of the National Unity Government (NUG) on `r incept` till the end of 1396, 199 district governors were appointed in all provinces either through competitive or uncompetitive procedures. However, due to reasons unexplored in this report, district governors have been reshuffled by the central government or the provincial governors. In total, the reshufflings icnrease the number of appointments to `r recTot` since the inception of the NUG. This report uses the _"true"_ district governors, the ones that have been serving as district governors irrespective of whether they were appointed formally or reshuffled, for the analysis. Table below provides the number of appointments by province across time since `r incept`.
+Since the inception of the National Unity Government (NUG) on `r incept` till the end of 1396, 199 district governors were appointed in all provinces either through competitive or uncompetitive procedures. However, due to reasons unexplored in this report, district governors have been reshuffled by the central government or the provincial governors. In total, the reshufflings icnrease the number of appointments to `r recTot` since the inception of the NUG. This report uses the _"true"_ district governors, the ones that have been serving as district governors irrespective of whether they were appointed formally or reshuffled, for the analysis. The table below provides the number of appointments by province across time since `r incept`.
 
 ```{r echo=FALSE}
 options(knitr.kable.NA = "")
@@ -343,7 +342,7 @@ nAppoint %>% kable(col.names = c("Province", "1393*", "1394", "1395", "1396", "T
                    caption = "Number of Appointments of District Governors Since the Inception of NUG on 1393/07/07")
 ```
 
-The following graph provides a visual presentation of number of new district government appointments across time. The red line indicates the inception of the NUG.
+The following graph provides a visual presentation of number of new district governors appointments across time. The red line indicates the inception of the NUG.
 
 ```{r echo=FALSE, fig.cap="Appointments / selection of new district governors across time"}
 seq <- seq.Date(as.Date("1393-01-01"), as.Date("1396-12-30"), by = "day")
@@ -407,7 +406,7 @@ df2[, c("province", "dist", "date", "competitiveHiring", "mines")] %>% group_by(
   theme(axis.text.x = element_text(angle = 90, vjust = .5), plot.title = element_text(hjust = .5))
 ```
 
-Furthermore, the relationship between the types of appointments of district governors and their characteristics such as education, age, ethnicity and nativity are explored using graphs. The vertical line in graphs idnicates the inception date of the NUG.
+Furthermore, the relationship between the types of appointments of district governors and their characteristics such as education, age, ethnicity and nativity are explored using graphs. The vertical line in graphs indicates the inception date of the NUG.
 
 ```{r echo=FALSE, fig.cap="Share of competitive and uncompetitive district governors and their age"}
 df2[, c("province", "dist", "date", "competitiveHiring", "ageGrps2")] %>% group_by(date, competitiveHiring, ageGrps2) %>% tally %>% filter(!is.na(ageGrps2)) %>%

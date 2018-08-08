@@ -1,9 +1,11 @@
 
-# CONCLUSION
+# CONCLUSIONS
 
-The study presents a comprehensive description and explores linkages between characteristics of districts, district governors, and public perceptions across the country. The study bases its findings on a rich data that include all districts, all district governors and a nationally representative sample of Afghans that provide public opinion. Given the extent of data, a great number of linkages are explored and presented at detail throughout this study.
+The present study presents a comprehensive description of district and distrit governors profiles and explores the linkages between characteristics of districts, district governors, and public perceptions across the country. The study bases its findings on a wealth of data that includes all districts, all district governors and a nationally representative sample of Afghans’ public opinion. Given the extent of the data, a great number of linkages are explored and presented in detail throughout this study.
 
-The findings demonstrate a complex picture of districts, district governors, and public perceptions. A few paradoxical relationships surface that further reveal a complex nature of affairs. For example, opium poppy cultivation is found to have a positive relationship with the level of optimism and even positive views about the role of government in improving living conditions among Afghans.
+The findings demonstrate a complex picture of districts, district governors, and public perceptions. A few paradoxical relationships surface that further reveal a complex nature of the possible correlations. For example, opium poppy cultivation is found to have a positive relationship with the level of optimism and even positive views about the role of government in improving living conditions among Afghans.
 
 The study looked at 128 relationship between characteristics of districts, district governors, and public perception indicators. Given the amount of information, readers are required to study the whole report to develop a holistic picture of the subject. Nonetheless, a correlation matrix between indicators of interest is developed to help provide a simple yet complete picture of how districts, district governors and public perceptions interact.
- 
+
+Overall, the following conclusions can be drawn from this correlaction matrix:
+
