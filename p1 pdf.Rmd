@@ -57,6 +57,8 @@ shp <- readShapePoly("~/Desktop/ShinyApps/Province mapmaker/AFG_adm1.shp")
 
 # PART 1
 
+This part provides descriptive analysis of districts and district governors' characteristics. In the first section of Part 1, characteristics of districts are studied both in terms of 4-year trendline as well as with respect to other characteristics of districts and district governors. In the second section of Part 1, characteristics of district governors are studied both across time and with respect to other characteristics of districts and district governors.
+
 ## DISTRICTS
 
 ### District Grade
@@ -151,7 +153,7 @@ hwProv <- unique(df[df$highway=="With Highway", c("province")]) %>% nrow
 
 Afghanistan's main highways cross `r hwDist` districts (21.2%), and 17 provincial capitals in `r hwProv` provinces. Highways connect Afghanistan's largest cities and regional centers such as Kabul city, Herat city, Mazar-e-Sharif, Jalalabad and Kandahar city. Furthermore, most of districts with natural resources (mines) and land ports are connected to the highways. As a result, districts along the highway path have greater connectivity to these large cities. Access to highways improve market access for districts to export agricultural products and therefore boost local economies. The following map shows the districts that highway crosses.
 
-```{r highwayMap, echo=FALSE, out.width="70%", fig.align="center", fig.cap="Districts that access highway"}
+```{r highwayMap, echo=FALSE, out.width="100%", fig.align="center", fig.cap="Districts that access highway"}
 knitr::include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/highway.jpg")
 ```
 
@@ -362,7 +364,7 @@ There are `r sbDist` peri-urban districts that neighbor 34 provincial centers. B
 
 Being a peri-urban district could imply greater connectivity and more population. As such, there are more districts in vicinity of provincial centers that are grade 1 and 2 than districts that are detached from provincial centers. The relation between access to highway and being a peri-urban district is a positive one, with peri-urban districts having more access to highway than districts detached from provincial centers.
 
-[map of opium cultivation]
+[map of peri-urban districts: missing]
 
 Security-wise, peri-urban districts are more likely to be completely "secure" or completely "insecure", compared to not peri-urban districts. Not peri-urban districts are more likely to have moderate security status, such as somewhat secure or somewhat insecure, compared to peri-urban districts. Additionally, most districts that have collapsed are among districts that are remote and not peri-urban districts, e.g. only two peri-urban districts have collapsed.
 
