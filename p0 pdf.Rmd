@@ -14,7 +14,7 @@ The second part looks into public perceptions on security, optimism, confidence 
 The key findings of the second part are:
 [ADD]
 
-In the third (conclusions) part, the report tries to present the overall correlations between these three dimensions (district profiles, governors’s profiles and perceptions). 
+In the third (conclusions) part, the report tries to present the overall correlations between these three dimensions (district profiles, governors's profiles and perceptions). 
 
 This correlations analysis shows that:
 [ADD]
@@ -24,7 +24,7 @@ This correlations analysis shows that:
 
 # INTRODUCTION 
 
-Since the establishment of the Independent Directorate of Local Governance (IDLG), no study of districts and district governors has been undertaken. This study aims to provide a comprehensive description of districts and district governors across the country to answer questions related to their performance. On districts, this report provides basic information on district grades, access to highway, security status, frontier and non-frontier, peri-urban districts, districts with mineral resources, and opium poppy cultivation. On district governors, this report provides information on their age, educational attainment, ethnicity, nativity, and appointment type. On district governors’ performance, this report investigates how district governors’ characteristics are associated with public perceptions on governance, safety and services.
+Since the establishment of the Independent Directorate of Local Governance (IDLG), no study of districts and district governors has been undertaken. This study aims to provide a comprehensive description of districts and district governors across the country to answer questions related to their performance. On districts, this report provides basic information on district grades, access to highway, security status, frontier and non-frontier, peri-urban districts, districts with mineral resources, and opium poppy cultivation. On district governors, this report provides information on their age, educational attainment, ethnicity, nativity, and appointment type. On district governors' performance, this report investigates how district governors' characteristics are associated with public perceptions on governance, safety and services.
 
 The bulk of data for this study come from various departments of IDLG, Provincial Governors Offices (PGOs), and the annual survey of the Asia Foundation.  
 
@@ -72,11 +72,11 @@ This report concerns two main questions. What are the characteristics of distric
 
 ## Data
 
-The final data set is an amalgam of three distinct datasets. The primary data was information on district governors and districts which are internal data of the Independent Directorate of Local Governance (IDLG). Another source is the Survey of the Afghan People data, which is an annual survey of perceptions from a national sample of Afghans. The survey include data on perceptions about the district governors, security, and other relevant topics that are used in this analysis. Lastly, district level data from the opium poppy cultivation survey is used to enrich the analysis and control for the illicit drug economy’s effect on district governors’ performance, if any.
+The final data set is an amalgam of three distinct datasets. The primary data was information on district governors and districts which are internal data of the Independent Directorate of Local Governance (IDLG). Another source is the Survey of the Afghan People data, which is an annual survey of perceptions from a national sample of Afghans. The survey include data on perceptions about the district governors, security, and other relevant topics that are used in this analysis. Lastly, district level data from the opium poppy cultivation survey is used to enrich the analysis and control for the illicit drug economy's effect on district governors' performance, if any.
 
 The main shortcoming from the data part that needs noting is unavailability of data on some indicators related to districts and governors. For example, data on age of 9 district governors currently serving were unavailable at the time of data collection. The unavailability of data, also known as missing data, tends to be slightly higher for the past years. Missing data are not excluded from the descriptive analysis and they are labelled NA in graphs used throughout this report. Missing data are however excluded from the inferential analysis (Part 2) as such methods do not apply on missing data. 
 
 ## Data analysis
 
-In this report, two main methods are used which corresponds with the type of analysis and answers sought. In Part 1 of the report, descriptive statistics and graphs are used to explore relationship between how characteristics of district governors and districts are associated. In this part, analysis and graphs are enriched with a longitudinal feature which illustrates the dynamic relationship between indicators of interest. In Part 2, inferential statistics such as logistic regression and ordered logistic regression are used to study the complex relationships between indicators of interest, such as districts’ and district governors’ characteristics with public perceptions on governance, safety and services.
+In this report, two main methods are used which corresponds with the type of analysis and answers sought. In Part 1 of the report, descriptive statistics and graphs are used to explore relationship between how characteristics of district governors and districts are associated. In this part, analysis and graphs are enriched with a longitudinal feature which illustrates the dynamic relationship between indicators of interest. In Part 2, inferential statistics such as logistic regression and ordered logistic regression are used to study the complex relationships between indicators of interest, such as districts' and district governors' characteristics with public perceptions on governance, safety and services.
 

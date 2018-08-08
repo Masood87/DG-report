@@ -1,6 +1,4 @@
 
-\newpage
-
 ```{r warning=FALSE, message=FALSE, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, error = FALSE, fig.height = 3)
 ```
@@ -12,6 +10,9 @@ library(lubridate)
 library(maptools)
 library(knitr)
 df <- read_csv("~/Documents/My Consultancies/IDLG District Governor's Report/DG data (March 19) v5.csv")
+pop <- read_csv("~/Documents/My Consultancies/IDLG District Governor's Report/Afghan_opium_survey_2017_cult_CLEAN.csv")
+names(pop) <- c("province", "dist", "year", "cultivation")
+pop$year <- pop$year-621
 ```
 
 ```{r warning=FALSE, include=FALSE}
@@ -90,9 +91,9 @@ filter(df, enddate == as.Date("1396-12-30")) %>% arrange(desc(birthyear)) %>%
   kable(col.names = c("Province", "District", "Age"), caption = "Youngest District Governors")
 ```
 
-The age of district governors appears to have relationship with some districts’ geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had older district governors in the past 4 years. Districts with natural resources, ports, or frontier districts along Pakistan border have younger governors on average. Younger governors are also associated with greater opium poppy cultivation. Districts’ security condition or having highway cross the district does not appear to have clear relationship with the age of district governors.
+The age of district governors appears to have relationship with some districts' geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had older district governors in the past 4 years. Districts with natural resources, ports, or frontier districts along Pakistan border have younger governors on average. Younger governors are also associated with greater opium poppy cultivation. Districts' security condition or having highway cross the district does not appear to have clear relationship with the age of district governors.
 
-The age of district governors appears to have some relationship with districts’ geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had significantly older district governors in the past 4 years. Resource rich districts which have any type of mines or ports, or borders a foreign country other than Pakistan, have younger district governors on average. There is also a negative relationship between district governors age and the opium poppy cultivation, with younger governors corresponding with greater opium poppy cultivation. Districts’ security condition or having highway cross the district does not appear to have clear relationship with the age of district governors. Figures below visualizes the relationship between the district characteristics and age of their governors at the national level across time.
+The age of district governors appears to have some relationship with districts' geo-political characteristics. On average, more strategic districts which are classified as grade 1 and districts that are adjacent to the provincial centers have had significantly older district governors in the past 4 years. Resource rich districts which have any type of mines or ports, or borders a foreign country other than Pakistan, have younger district governors on average. There is also a negative relationship between district governors age and the opium poppy cultivation, with younger governors corresponding with greater opium poppy cultivation. Districts' security condition or having highway cross the district does not appear to have clear relationship with the age of district governors. Figures below visualizes the relationship between the district characteristics and age of their governors at the national level across time.
 
 ```{r echo=FALSE, fig.cap="Relationship between district governors' age and districts' security status"}
 df2[, c("province", "district", "date", "ageGrps2", "secureBinary")] %>% 
@@ -133,7 +134,7 @@ ppInc <- (UnivEdu[2]-UnivEdu[1])
 pInc <- ((UnivEdu[2]-UnivEdu[1])/UnivEdu[1]) %>% {round(.*100, 1)}
 ```
 
-There has been a steady increase in educational level of district governors in the last four years. For instance, in the beginning of the 1393, `r UnivEdu[1]`% of all district governors held a university degree such as bachelor's or master’s degrees. At the end of 1396, this figure was `r UnivEdu[2]`%, which indicates a `r pInc`% (or `r ppInc` percentage points) increase in district governors with a university degree.
+There has been a steady increase in educational level of district governors in the last four years. For instance, in the beginning of the 1393, `r UnivEdu[1]`% of all district governors held a university degree such as bachelor's or master's degrees. At the end of 1396, this figure was `r UnivEdu[2]`%, which indicates a `r pInc`% (or `r ppInc` percentage points) increase in district governors with a university degree.
 
 ```{r echo=FALSE, fig.cap="Educational attainment of district governors across time"}
 df2[, c("prov", "district", "date", "education")] %>% group_by(date, education) %>% tally %>% 
@@ -431,15 +432,6 @@ df2[, c("province", "dist", "date", "competitiveHiring", "native")] %>% group_by
   ggplot(aes(date, n, fill = competitiveHiring)) + geom_area(position = "fill") + theme_bw() + facet_wrap(~native) + labs(x = "", y = "Count", fill = "Type of\nAppointment") + geom_vline(xintercept = nugIncept, col = "navy") +
   theme(axis.text.x = element_text(angle = 90, vjust = .5), plot.title = element_text(hjust = .5))
 ```
-
-
-
-
-
-
-
-
-
 
 
 
