@@ -1,0 +1,561 @@
+
+```{r global_options, message=FALSE, warning=FALSE, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, error = FALSE, fig.height = 3, fig.pos = 'H')
+```
+
+```{r include=FALSE}
+require(tidyverse)
+require(data.table)
+require(lubridate)
+require(maptools)
+require(knitr)
+df <- read_csv("~/Documents/My Consultancies/IDLG District Governor's Report/DG data (March 19) v5.csv")
+pop <- read_csv("~/Documents/My Consultancies/IDLG District Governor's Report/Afghan_opium_survey_2017_cult_CLEAN.csv")
+names(pop) <- c("province", "dist", "year", "cultivation")
+pop$year <- pop$year-621
+```
+
+```{r include=FALSE}
+df$education <- factor(df$education, levels = c("Master's degree", "Bachelor degree", "14th grade", "School certificate", "School incomplete", "Private education"))
+df$majEthnic <- ifelse(df$ethnic == "Pashtun", "Pashtun", 
+                       ifelse(df$ethnic == "Tajik", "Tajik", ifelse(df$ethnic == "Hazara", "Hazara", ifelse(df$ethnic == "Uzbek", "Uzbek", ifelse(!is.na(df$ethnic), "Others", NA)))))
+df$majEthnic <- factor(df$majEthnic, levels = c("Pashtun", "Tajik", "Hazara", "Uzbek", "Others"))
+df$native <- as.character(df$native)
+df$native <- ifelse(df$native == "TRUE", "Native", ifelse(df$native == "FALSE", "Non-native", NA))
+df$competitiveHiring <- ifelse(df$dghiring=="Competitive", "Competitive", ifelse(is.na(df$dghiring), NA, "Uncompetitive")) %>% factor(ordered = T)
+df <- mutate(df, startyear = year(df$startdate), startAge = startyear - birthyear, 
+             ageGrps = ifelse(startAge<=30, 1, ifelse(startAge<=40, 2, ifelse(startAge<=50, 3, ifelse(startAge<=60, 4, 5)))))
+df$ageGrps <- factor(df$ageGrps, labels = c("Up to 30", "31-40", "41-50", "51-60", "More than 60"))
+df$secure <- factor(df$secure, labels = c("Collapsed","Insecure","Somewhat Insecure","Somewhat Secure","Secure"), 
+                    levels = c("Not Active","Insecure","Somewhat Insecure","Somewhat Secure","Secure"), ordered = T)
+df$native <- df$pob == df$province
+df <- mutate(df, border=factor(border, labels=c("Not Frontier District", "Frontier District")), 
+             ports=factor(ports, labels=c("Without Port", "With Port")), 
+             mines=factor(mines, labels=c("Without Mine", "With Mine")), 
+             grade=factor(grade, labels=c("Grade 1", "Grade 2", "Grade 3")), 
+             suburb=factor(suburb, labels=c("Not Peri-Urban Districts", "Peri-Urban Districts")), 
+             highway=factor(highway, labels=c("Without Highway", "With Highway")), 
+             native=factor(native, labels=c("Non-Native", "Native")),
+             secureBinary=case_when(secure %in% c("Somewhat Secure", "Secure") ~ "Secure", 
+                                    secure %in% c("Insecure", "Somewhat Insecure") ~ "Insecure",
+                                    secure=="Collapsed" ~ "Collapsed"))
+df$secureBinary <- factor(df$secureBinary, levels = c("Secure", "Insecure", "Collapsed"), ordered = T)
+
+df2 <- data.table(select(df, -interval))
+df2 <- df2[, list(prov,district,firstname,fathername,pob,birthyear,ageGrps,majEthnic,competitiveHiring,education,native,polpartyaffiliation,pastpolpartyaffiliation,province,dist,status,secure,secureBinary,security,border,ports,mines,grade,suburb,highway, date = seq(startdate, enddate, by = "day")), by = 1:nrow(df2)]
+df2$age <- as.numeric((as.Date(df2$date) - as.Date(paste0(df2$birthyear, "-07-01")))/365)
+df2$ageGrps2 <- if_else(df2$age<30.5, 1, if_else(df2$age<40.5, 2, if_else(df2$age<50.5, 3, if_else(df2$age<60.5, 4, 5))))
+df2$ageGrps2 <- factor(df2$ageGrps2, labels = c("Up to 30", "31-40", "41-50", "51-60", "More than 60"))
+df2$year <- year(df2$date)
+df2 <- full_join(df2, pop, c("province", "dist", "year"))
+
+nugIncept <- as.Date("1393-07-07")
+incept <- format.Date(nugIncept, "%d/%m/%Y") %>% as.character()
+nugHired <- filter(df, startdate > nugIncept & !is.na(firstname))
+shp <- readShapePoly("~/Desktop/ShinyApps/Province mapmaker/AFG_adm1.shp")
+```
+
+# PART 1
+
+## DISTRICTS
+
+### District Grade
+```{r include=FALSE}
+disGrade <- unique(df[, c("province", "district", "grade")]) %>% .[[3]] %>% table %>% data.frame
+```
+
+Afghanistan is divided into 34 provincial centers and 387 districts, of which 364 districts are permanent and 23 are temporary districts that are created based on needs. Furthermore, the districts are classified into three grades based on their population, socio-economic importance, and proximity from provincial centers and borders. Grade 1 districts are considered most important, followed by grade 2 and then grade 3. There are `r disGrade[1,2]` grade 1 districts, `r disGrade[2,2]` grade 2 districts, and `r disGrade[3,2]+3` grade 3 districts. A similar classification exists for provinces, which is not covered in this report. The following table summarizes districts into grades.
+
+```{r echo=FALSE}
+options(knitr.kable.NA = "")
+unique(df[, c("prov", "district", "grade")]) %>% group_by(grade) %>% tally %>% mutate(n = n + c(0,0,3)) %>%
+  kable(col.names = c("Grades", "Number of Districts"), caption = "Districts by Grade")
+```
+&nbsp;
+
+```{r include=FALSE}
+mineGrd <- unique(df[, c("province", "district", "grade", "mines")]) %>% select(3:4) %>% table %>% prop.table(1) %>% data.frame
+mineGrd1 <- mineGrd %>% filter(grade=="Grade 1", mines=="With Mine") %>% .[,3] %>% {round(.*100, 1)} %>% format(nsmall = 1)
+mineGrd2 <- mineGrd %>% filter(grade=="Grade 2", mines=="With Mine") %>% .[,3] %>% {round(.*100, 1)} %>% format(nsmall = 1)
+mineGrd3 <- mineGrd %>% filter(grade=="Grade 3", mines=="With Mine") %>% .[,3] %>% {round(.*100, 1)} %>% format(nsmall = 1)
+```
+
+In general, districts considered more important (grade 1) have better natural resources (mines), have better highway access and proximity to provincial centers. For example, more than half (`r mineGrd1`%) of grade 1 districts are resource rich, while resources are much scarcer in grade 2 and grade 3 districts (`r mineGrd2`% and `r mineGrd3`%)` respectively). Moreover, close to half of grade 1 districts are in vicinity of provincial centers. Districts of grade 2 and 3 are less likely to be near provincial centers. Similarly, a greater proportion of grade 1 districts have access to highway than grade 2 and 3 districts. In terms of security, grade 1 districts have relatively better security with majority of them considered secure or somewhat secure. Insecurity is more widespread among grade 2 and 3 districts--14 grade 2 or 3 districts have fallen to the hands of the anti-government elements.
+
+```{r echo=FALSE, fig.cap="Relationship between district grade and security status"}
+unique(df[, c("province", "district", "grade", "secureBinary")]) %>% select(3:4) %>% table() %>% data.frame() %>% 
+  ggplot(aes(grade, Freq, fill=secureBinary)) + geom_col(position = "fill") + theme_bw() + 
+  labs(x="", y="Ratio", fill="Security") + theme(plot.title = element_text(hjust = .5)) +
+  scale_fill_manual(values = c("darkolivegreen4", "firebrick2", "black"), na.value = "grey")
+```
+
+```{r echo=FALSE}
+oldGrd1 <- filter(df2, date == as.Date("1396-12-30"), grade=="Grade 1") %>% {table(.$ageGrps2, useNA = "ifany")} %>% 
+  prop.table() %>% .[[5]] %>% {round(.*100, 1)}
+oldGrd2 <- filter(df2, date == as.Date("1396-12-30"), grade=="Grade 2") %>% {table(.$ageGrps2, useNA = "ifany")} %>% 
+  prop.table() %>% .[[5]] %>% {round(.*100, 1)}
+oldGrd3 <- filter(df2, date == as.Date("1396-12-30"), grade=="Grade 3") %>% {table(.$ageGrps2, useNA = "ifany")} %>% 
+  prop.table() %>% .[[5]] %>% {round(.*100, 1)}
+```
+&nbsp;
+
+On average, governors of grade 1 districts are the oldest governors in the country. Grade 2 districts have younger district governors on average comparatively. Grade 3 districts have the biggest transformation in terms of introducing younger district governors in the past 1 and half years. It is noteworthy that a tangible proportion of governors in grade 1 and grade 3 districts are older than 60 years of age (`r oldGrd1`% and `r oldGrd3`% respectively).
+
+```{r echo=FALSE, fig.cap="Relationship between district grade and age of district governors"}
+group_by(df2, date, grade) %>% summarize(age = mean(age, na.rm = T)) %>% filter(!is.na(grade)) %>%
+  ggplot(aes(date, age, col = grade)) + geom_line() + theme_bw() + labs(x="", y="Average Age", col="District\nGrade") +
+  geom_vline(xintercept = nugIncept, col = "navy")
+```
+&nbsp;
+
+Similar to average age drop in grade 3 districts, the share of university educated governors have also sharply rose in grade 3 districts. Share of university educated governors have also increased in grade 1 and 2 districts.
+
+```{r echo=FALSE, fig.cap="Relationship between district grade and educational attainment of district governors"}
+df2[, c("province", "district", "date", "grade", "education")] %>% group_by(date, grade, education) %>% tally %>% 
+  filter(!is.na(grade)) %>% ggplot(aes(date, n, fill = education)) + geom_area(position = "fill") + facet_wrap(~grade) + 
+  theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") + labs(x="", y="Ratio", fill="Education") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = .5), plot.title = element_text(hjust = .5))
+```
+&nbsp;
+
+Since formation of NUG, the proportion of Pashtun and Tajik ethnic governors have declined in the grade 1 districts as the other ethnic groups have gained more representation. This trend is reverse in grade 2 and 3 districts where Pashtun and Tajik governors have made greater gains. However, the overall share of ethnic groups has not changed significantly since the inception of the NUG.
+
+```{r echo=FALSE, fig.cap="Relationship between district grade and ethnicity of district governors"}
+df2[, c("province", "district", "date", "grade", "majEthnic")] %>% group_by(date, grade, majEthnic) %>% tally %>% 
+  filter(!is.na(grade)) %>% ggplot(aes(date, n, fill = majEthnic)) + geom_area(position = "fill") + facet_wrap(~grade) + 
+  theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") + labs(x="", y="Ratio", fill="Ethnicity") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = .5), plot.title = element_text(hjust = .5))
+```
+
+```{r echo=FALSE, fig.cap="Change in ethnicity of district governors since inception of NUG"}
+filter(df2, date %in% c(nugIncept, as.Date("1396-12-30"))) %>% select(majEthnic, grade, date) %>% table %>% data.frame %>% 
+  ggplot(aes(majEthnic, Freq, fill = date)) + geom_col(position = "dodge") + facet_wrap(~grade) + theme_bw() + 
+  labs(x="", y="Number of District Governors") + theme(axis.text.x = element_text(angle = 90, vjust=.5, hjust=1))
+```
+&nbsp;
+
+While majority of district governors had been appointed through a competitive process, since 1395 the share of governors appointed through uncompetitive processes have been on the rise in grade 2 districts.
+
+```{r echo=FALSE, fig.cap="Relationship between district grade and governors' type of appointment"}
+df2[, c("province", "district", "date", "grade", "competitiveHiring")] %>% group_by(date, grade, competitiveHiring) %>% 
+  tally %>% filter(!is.na(grade)) %>% ggplot(aes(date, n, fill = competitiveHiring)) + geom_area(position = "fill") + 
+  facet_wrap(~grade) + geom_vline(xintercept = nugIncept, col = "navy") + labs(x="", y="Ratio", fill="Appointment\nType") + 
+  theme(axis.text.x=element_text(angle=90, vjust = .5), plot.title=element_text(hjust=.5)) + theme_bw()
+```
+&nbsp;
+
+### Highway Districts
+
+```{r include=FALSE}
+hwDist <- unique(df[df$highway=="With Highway", c("province", "district")]) %>% nrow
+hwProv <- unique(df[df$highway=="With Highway", c("province")]) %>% nrow
+```
+
+Afghanistan’s main highways cross `r hwDist` districts (21.2%), and 17 provincial capitals in `r hwProv` provinces. Highways connect Afghanistan’s largest cities and regional centers such as Kabul city, Herat city, Mazar-e-Sharif, Jalalabad and Kandahar city. Furthermore, most of districts with natural resources (mines) and land ports are connected to the highways. As a result, districts along the highway path have greater connectivity to these large cities. Access to highways improve market access for districts to export agricultural products and therefore boost local economies. The following map shows the districts that highway crosses.
+
+```{r highwayMap, echo=FALSE, out.width="100%", fig.cap="Districts that access highway"}
+knitr::include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/highway.jpg")
+```
+
+```{r echo=FALSE}
+borderHW <- unique(df[df$border=="Frontier District" & df$highway=="With Highway", c("province", "district")]) %>% nrow()
+prtnoHW <- unique(df[df$ports=="With Port" & df$highway!="With Highway", c("province", "dist")])
+```
+&nbsp;
+
+There is a two-facetted relationship between highway and security. On the one hand, many remote districts without access to highway are among the most secure areas in the country. On the other hand, many remote districts without access to highways are insecure and some have collapsed to the hands of anti-government elements.
+
+```{r echo=FALSE, fig.cap="Relationship between access to highway and security status"}
+unique(df[, c("province", "district", "highway", "secureBinary")]) %>% select(3:4) %>% table %>% data.frame %>% 
+  ggplot(aes(highway, Freq, fill=secureBinary)) + geom_col(position = "dodge") + labs(x="", fill="") +
+  theme_bw() + scale_fill_manual(values = c("darkolivegreen4", "firebrick2", "black"), na.value = "grey") + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top")
+```
+
+```{r include=FALSE}
+ethnic <- df2[df2$date == as.Date("1396-12-30"),] %>% count(majEthnic) %>% filter(!is.na(majEthnic)) %>% 
+  mutate(perc = format(round((n/384)*100, 1), nsmall = 1))
+ethHW <- df2[df2$date == as.Date("1396-12-30"),] %>% {table(.$majEthnic, .$highway, useNA = "ifany")} %>% 
+  prop.table(2) %>% data.frame() %>% filter(!is.na(Var1), Var2 == "With Highway", Var1 != "Others") %>% 
+  arrange(desc(Freq)) %>% mutate(Freq = format(round(Freq*100, 1), nsmall = 1))
+```
+
+Pashtun governors constitute half (`r ethnic[1,3]`%) of district governors overall. Furthermore, district with ethnic Pashtun governors have a larger share (`r ethHW[1,3]`%) in districts that have access to highway compared to districts without highway access. Also, almost all ethnic Hazara governors serve in districts that do not have access to highway. This perhaps indicate the ethnic composition of those districts, as majority of Hazara population reside in more remote areas in the central region that do not have access to highway.
+
+```{r echo=FALSE, fig.cap="Relationship between access to highway and ethnicity of district governors"}
+df2[, c("province", "district", "date", "highway", "majEthnic")] %>% group_by(date, highway, majEthnic) %>% 
+  tally %>% filter(!is.na(highway)) %>% ggplot(aes(date, n, fill = majEthnic)) + geom_area(position = "fill") + 
+  facet_wrap(~highway) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") +
+  labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x = element_text(angle = 90, vjust = .5))
+```
+
+Governors of districts with highway access are more likely to be appointed through a competitive process. The trend also indicates growing competitive appointments in the districts with access to highways. In districts wihtout access to highways, there is a slight uptick in uncompetitive appointments in the past one year.
+
+```{r echo=FALSE, fig.cap="Relationship between access to highway and district governors' appointment type"}
+df2[, c("province", "district", "date", "highway", "competitiveHiring")] %>% group_by(date, highway, competitiveHiring) %>% 
+  tally %>% filter(!is.na(highway)) %>% ggplot(aes(date, n, fill = competitiveHiring)) + geom_area(position = "fill") + 
+  facet_wrap(~highway) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") +
+  labs(x="", y="Ratio", fill="Appointment\nType") + theme(axis.text.x=element_text(angle=90, vjust = .5))
+```
+&nbsp;
+
+### Security Status of Districts
+```{r include=FALSE}
+sec <- df2[df2$date == as.Date("1396-12-30"),] %>% count(secureBinary) %>% 
+  filter(!is.na(secureBinary)) %>% mutate(perc = format(round((n/364)*100, 1), nsmall = 1))
+```
+
+Providing security has been a key challenge for the NUG. Based on the IDLG’s latest internal security assessment of permanent districts, `r sec[1,2]` districts (`r sec[1,3]`%) are considered secure and somewhat secure, `r sec[2,2]` districts (`r sec[2,3]`%) are considered somewhat insecure or fully insecure, and `r sec[3,2]` districts (`r sec[3,3]`%) have been marked as inactive as they have collapsed to the hands of anti-government elements The details such as methods of this classification and reasons behind collapse of those `r sec[3,2]` districts are beyond the scope of this report. This report however provides analysis of how security is correlated with other indicators associated with districts and district governors. The following table lists number of permanent districts by their security status.^[This analysis refers exclusively to permantent distrits (364) and therefore excludes the additional 23 districts.]
+
+```{r secTable, echo=FALSE}
+unique(df[, c("province", "district", "secure")]) %>% .[[3]] %>% table() %>% 
+  kable(col.names = c("Security Status", "Number of Districts"), 
+        caption = "Permanent districts and security status")
+```
+
+```{r secureMap, echo=FALSE, out.width="100%", fig.cap="Security status of districts"}
+include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/secure.png")
+```
+&nbsp;
+
+Overall, sharing border with a neighboring country (frontier) does not appear to have a relationship with security situation in a district, as shown in figure below. That said, the country with which the district has a frontier has some correlation with security: For example, districts neighboring Pakistan and Turkmenistan – which are also the ones with higher level of poppy cultivation -  have relatively poorer security situation, when compared to distrits sharing a border with Iran or Tajikistan. This indicates a complex relationship security, opium poppy cultivation and frontier districts.
+
+```{r echo=FALSE, fig.cap="Relationship between security and being a frontier district"}
+unique(df[, c("province", "district", "secure", "border")]) %>% select(3:4) %>% table() %>% data.frame %>% 
+  ggplot(aes(secure, Freq, fill=border)) + geom_col(position = "fill") + theme_bw() + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top") + labs(x="", fill="", y = "Ratio")
+```
+
+Security does not appear to have direct link with extractive mineral resources (mines), as most secure and most insecure districts are less likely to have mines, while somewhat secure and somewhat insecure districts are more likely to have them. Please note that this study does not distinguish between different types of extractive mineral resources, or whether the mines are active. Therefore, the potential linkages between easy-to-extract resources and instability are not studied.
+
+```{r echo=FALSE, fig.cap="Relationship between security and having mineral resources (mine)"}
+unique(df[, c("province", "district", "secure", "mines")]) %>% select(3:4) %>% table %>% data.frame %>% 
+  ggplot(aes(secure, Freq, fill=mines)) + geom_col(position = "fill") + theme_bw() + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top") + labs(x="", fill="", y = "Ratio")
+```
+&nbsp;
+
+```{r include=FALSE}
+adjInactive <- unique(df[df$secure=="Collapsed" & df$suburb=="Peri-Urban Districts", c("province", "dist")])
+```
+
+Peri-urban districts appears to have limited relation with security. On average, insecure districts are more likely to be peri-urban districts, however peri-urban districts are less likely to have collapsed to anti-government groups. The exceptions are two peri-urban districts that have collapsed (`r adjInactive[1,2]` in `r adjInactive[1,1]` and `r adjInactive[2,2]` in `r adjInactive[2,1]`).
+
+```{r echo=FALSE, fig.cap="Relationship between security and peri-urban district"}
+unique(df[, c("province", "district", "secureBinary", "suburb")]) %>% select(3:4) %>% table %>% data.frame %>% 
+  ggplot(aes(secureBinary, Freq, fill=suburb)) + geom_col(position = "fill") + theme_bw() + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top") + labs(x="", fill="", y = "Ratio")
+```
+&nbsp;
+
+Relationship between security and highway access is not a robust one. The most interesting point from relationship between security and highway access is that all 14 districts that have collapsed do not have access to highway. Lack of access to highway indicates remoteness. This supports the idea that remote districts are more prone to fall to anti-government elements. 
+
+```{r echo=FALSE, fig.cap="Relationship between security and access to highway"}
+unique(df[, c("province", "district", "secure", "highway")]) %>% select(3:4) %>% table %>% data.frame %>% 
+  ggplot(aes(secure, Freq, fill=highway)) + geom_col(position = "fill") + theme_bw() + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top") + labs(x="", fill="", y = "Ratio")
+```
+&nbsp;
+
+District grade and security appears to have a positive relationship. As shown in the following graph, grade 1 districts have better security than grade 2 and 3 districts. Furthermore, some of grade 3 districts that are generally remote and sparsely populated are also among the most secure districts.
+
+```{r echo=FALSE, fig.cap="Relationship between security and district grade"}
+unique(df[, c("province", "district", "secure", "grade")]) %>% select(3:4) %>% table %>% data.frame %>% 
+  ggplot(aes(secure, Freq, fill=grade)) + geom_col(position = "fill") + theme_bw() + 
+  theme(axis.text.x = element_text(size = 8), legend.position = "top") + labs(x="", fill="", y = "Ratio")
+```
+
+On average, district governors in secure districts are about 2 years older than governors in insecure districts. Furthermore, in terms of education, secure districts have slightly more university educated governors than insecure districts.
+
+```{r echo=FALSE, fig.cap="Relationship between district security and age of governors"}
+df2[, c("province", "district", "date", "secureBinary", "age")] %>% group_by(date, secureBinary) %>% 
+  summarise(age = mean(age, na.rm = T)) %>% filter(!is.na(secureBinary), secureBinary != "Collapsed") %>%
+  ggplot(aes(date, age, col = secureBinary)) + geom_line() + theme_bw() + 
+  geom_vline(xintercept = nugIncept, col = "navy") + labs(x = "", y = "Average age", col = "")
+```
+
+```{r echo=FALSE, fig.cap="Relationship between district security and education of governors"}
+df2[df2$date == as.Date("1396-12-30"),] %>% {table(.$secureBinary, .$education, useNA = "ifany")} %>% prop.table(1) %>% 
+  {round(.*100, 1)} %>% data.frame %>% filter(!is.na(Var1), !is.na(Var2), Var1 != "Collapsed") %>% 
+  ggplot(aes(Var2, Freq, fill = Var1)) + geom_col(position = "dodge") + theme_bw() + labs(x = "", fill = "") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = .5, hjust = 1)) +
+  scale_fill_manual(values = c("darkolivegreen4", "firebrick2"), na.value = "grey")
+```
+
+While about half of district governors are ethnic Pashtun, they are mostly at districts that are insecure. In secure districts, the share of governors that belong to other ethnic groups, particularly ethnic Tajik, are greater. Note that there is no evidence of a causal relationship between security and ethnicity in the data.
+
+```{r echo=FALSE, fig.cap="Relationship between district security and ethnicity of district governors"}
+df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", "majEthnic")] %>% 
+  group_by(date, secureBinary, majEthnic) %>% tally %>% ggplot(aes(date, n, fill = majEthnic)) + 
+  geom_area(position = "fill") + facet_wrap(~secureBinary) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") +
+  labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x=element_text(angle=90, vjust = .5))
+```
+&nbsp;
+
+Insecure district on average had more governors that were appointed through an uncompetitive process than secure districts. However, there is a slight uptick in the share of uncompetitive hirings governors in secure districts in the past one year. This trend corresponds with an overall growth in uncompetitive recruitments of district governors, which is discussed in Section 1.2.5.
+
+```{r echo=FALSE, fig.cap="Relationship between district security and type of appointment of district governors"}
+df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", "competitiveHiring")] %>% 
+  group_by(date, secureBinary, competitiveHiring) %>% tally %>% ggplot(aes(date, n, fill = competitiveHiring)) + 
+  geom_area(position = "fill") + facet_wrap(~secureBinary) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") +
+  labs(x="", y="Ratio", fill="Appointment\nType") + theme(axis.text.x=element_text(angle=90, vjust = .5))
+```
+&nbsp;
+
+
+### Frontier Districts and Districts with Land Ports
+
+Afghanistan has 82 frontier districts. 44 districts are in 11 provinces border Pakistan, 10 districts in 3 provinces border Iran, and 36 districts in 8 provinces border Tajikistan, Uzbekistan, Turkmenistan, and China. There are five districts that border more than one country. In some cases, being a frontier border is associated with negative security situation, such as districts that border Pakistan and Turkmenistan. Districts that share a border with Pakistan and Turkmenistan are also the biggest producers of opium poppy--these districts accounted for three-quarter of all opium poppy cultivated in 2017. Security and opium poppy cultivation seem to have a strong association--see Section 1.1.7 for more details.
+
+Among 82 frontier districts, 8 have formal land ports with its neighbors. These land ports are situated in 9 provinces connecting Afghanistan with five of its neighboring countries. All land ports are located in districts other than provincial capitals, except for Zaranj city which is also the capital of Nimroz province in the South West Afghanistan. The map below shows frontier districts and districts with ports.
+
+```{r borderMap, echo=FALSE, out.width="100%", fig.cap="Districts that border a neighboring country and districts with land ports"}
+include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/border and port.png")
+```
+&nbsp;
+
+```{r include=FALSE}
+ageBdr96 <- filter(df2, date == as.Date("1396-12-30"), border=="Frontier District") %>% .[["age"]] %>% mean(na.rm=T) %>% round(1)
+ageBdr94 <- filter(df2, date == as.Date("1394-12-30"), border=="Frontier District") %>% .[["age"]] %>% mean(na.rm=T) %>% round(1)
+ageBdr2yrs <- (ageBdr94-ageBdr96) %>% round(1)
+edBordr94 <- df2[df2$date==as.Date("1394-12-30") & !is.na(df2$firstname) & df2$border=="Frontier District", c("education")] %>% 
+  table %>% prop.table %>% data.frame %>% {sum(.[1:2, 2])*100} %>% round(1) %>% format(nsmall = 1)
+edBordr96 <- df2[df2$date==as.Date("1396-12-30") & !is.na(df2$firstname) & df2$border=="Frontier District", c("education")] %>% 
+  table %>% prop.table %>% data.frame %>% {sum(.[1:2, 2])*100} %>% round(1) %>% format(nsmall = 1)
+```
+
+In terms of age, the average age for governors of frontier districts has fallen in the past two years by `r ageBdr2yrs` years, from `r ageBdr94` to `r ageBdr96`. Similar to age, governors of frontier districts are becoming considerably more educated in the past two years. Currently in frontier districts, over half (`r edBordr96`%) of district governors have a university degree, which is an increase from `r edBordr94` percent in two years ago.
+
+```{r include=FALSE, fig.cap="Relationship between frontier districts and age of governors"}
+df2[, c("province", "district", "date", "age", "border")] %>% group_by(date, border) %>% 
+  summarise(age = mean(age, na.rm = T)) %>% filter(!is.na(border)) %>%
+  ggplot(aes(date, age, col = border)) + geom_line() + theme_bw() + labs(x = "", y = "Average age", col = "") + 
+  geom_vline(xintercept = nugIncept, col = "navy")
+```
+
+```{r echo=FALSE, fig.cap="Relationship between frontier districts and district governor's education"}
+df2[, c("province", "district", "date", "border", "education")] %>% group_by(date, border, education) %>% tally %>% 
+  filter(!is.na(border)) %>% ggplot(aes(date, n, fill = education)) + geom_area(position = "fill") + 
+  facet_wrap(~border) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") + 
+  labs(x="", y="Ratio", fill="Education") + theme(axis.text.x = element_text(angle=90, vjust=.5))
+```
+&nbsp;
+
+In terms of ethnicity, ethnic Pashtun governors have greater representation in frontier districts, consistent with number frontier districts in the Pashtun-dominated regions of East and South. Also, Hazara ethnic governors do not serve in frontier districts. This is consistent with Hazara-dominated districts being in the Central region of Afghanistan.
+
+```{r echo=FALSE, fig.cap="Relationship between frontier districts and district governor's ethnicity"}
+df2[, c("province", "district", "date", "border", "majEthnic")] %>% group_by(date, border, majEthnic) %>% tally %>% 
+  filter(!is.na(border)) %>% ggplot(aes(date, n, fill = majEthnic)) + geom_area(position = "fill") + 
+  facet_wrap(~border) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") + 
+  labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x = element_text(angle=90, vjust=.5))
+```
+&nbsp;
+
+Uncompetitive recruitments and appointments of governors are more prevalent in frontier districts than other districts. Furthermore, the trend indicates that uncompetitive recruitments have been significantly on the rise in non-frontier districts over the past year.
+
+```{r echo=FALSE, fig.cap="Relationship between frontier districts and type of appointment of district governors"}
+df2[, c("province", "district", "date", "border", "competitiveHiring")] %>% group_by(date, border, competitiveHiring) %>% 
+  tally %>% filter(!is.na(border)) %>% ggplot(aes(date, n, fill = competitiveHiring)) + geom_area(position = "fill") + 
+  facet_wrap(~border) + theme_bw() + geom_vline(xintercept = nugIncept, col = "navy") + 
+  labs(x="", y="Ratio", fill="Appointment\nType") + theme(axis.text.x = element_text(angle=90, vjust=.5))
+```
+&nbsp;
+
+### Peri-Urban Districts
+
+```{r include=FALSE}
+sbDist <- unique(df[df$suburb=="Peri-Urban Districts", c("province", "district")]) %>% nrow
+```
+
+There are `r sbDist` peri-urban districts that neighbor 34 provincial centers. Because of proximity to provincial centers, these districts have a better transportation infrastructure and have better economic conditions. Furthermore, peri-urban districts on average have lower rate of opium poppy cultivation, unless they border Pakistan and Iran (Section 1.1.7 provides more details).
+
+Being a peri-urban district could imply greater connectivity and more population. As such, there are more districts in vicinity of provincial centers that are grade 1 and 2 than districts that are detached from provincial centers. The relation between access to highway and being a peri-urban district is a positive one, with peri-urban districts having more access to highway than districts detached from provincial centers.
+
+[map of opium cultivation]
+
+Security-wise, peri-urban districts are more likely to be completely "secure" or completely "insecure", compared to not peri-urban districts. Not peri-urban districts are more likely to have moderate security status, such as somewhat secure or somewhat insecure, compared to peri-urban districts. Additionally, most districts that have collapsed are among districts that are remote and not peri-urban districts, e.g. only two peri-urban districts have collapsed.
+
+```{r echo=FALSE, fig.cap="Relationship between peri-urban districts and security status"}
+unique(df[, c("province", "district", "suburb", "secure")]) %>% select(3:4) %>% table() %>% data.frame %>% 
+  ggplot(aes(suburb, Freq, fill=secure)) + geom_col(position = "fill") + theme_bw() + 
+  labs(x="", y = "Ratio", fill="Status")
+```
+
+```{r echo=FALSE}
+nonNativeSubrb <- df2[df2$date == as.Date("1396-12-30"),] %>% {table(.$native, .$suburb, useNA = "ifany")} %>% 
+  prop.table(2) %>% data.frame %>% filter(!is.na(Var1), !is.na(Var2), Var1 == "Non-Native") %>% 
+  mutate(Freq = format(round(Freq*100, 1), nsmall = 1)) %>% arrange(desc(Freq))
+subAgeNUG <- filter(df2, date %in% c(nugIncept, as.Date("1396-12-30")), suburb == "Peri-Urban Districts") %>% 
+  group_by(date) %>% summarise(age = format(round(mean(age, na.rm = T), 1), 1))
+```
+
+While on average most of district governors are native to the province they serve, governors of peri-urban districts are slightly more non-native (`r nonNativeSubrb[1,3]`%) compared to other districts (`r nonNativeSubrb[2,3]`%). In terms of ethnicity composition of district governors, the peri-urban and non-peri-urban districts are largely similar. In terms of age, governors of peri-urban districts are younger and has not changed since the formation of NUG (`r subAgeNUG[2,2]` years of age). Similarly, governors of peri-urban districts are more educated.
+
+```{r echo=FALSE, fig.cap="Relationship between peri-urban districts and education of governors"}
+unique(df2[, c("province","district","date","suburb","education")]) %>% group_by(date,suburb,education) %>% 
+  tally %>% filter(!is.na(suburb)) %>% ggplot(aes(date,n,fill=education)) + geom_area(position="fill") + 
+  facet_wrap(~suburb) + theme_bw() + labs(x="", y="Ratio", fill="Education") + 
+  theme(axis.text.x=element_text(angle=90, vjust=.5)) + geom_vline(xintercept=nugIncept, col="navy")
+```
+&nbsp;
+
+```{r echo=FALSE}
+compHir <- filter(df2, date==as.Date("1396-12-30")) %>% select(competitiveHiring) %>% table(useNA = "ifany") %>% 
+  prop.table() %>% {round(.*100, 1)} %>% data.frame() %>% .[1,2]
+hire2yrs <- filter(df2, date %in% c(as.Date("1394-12-30"), as.Date("1396-12-30")), suburb=="Peri-Urban Districts") %>% 
+  .[, c("competitiveHiring", "date")] %>% table(useNA = "ifany") %>% prop.table(2) %>% {round(.*100, 1)} %>% data.frame
+```
+
+Most (`r compHir`%) district governors have been appointed through competitive processes. However, there is a growing number of governors appointed through uncompetitive processes in the past 2 years. This is more evident in peri-urban districts that sees a surge in uncompetitive appointments--uncompetitive recruitments in peri-urban districts have increased from `r hire2yrs[2,3]` percent to `r hire2yrs[5,3]` percent in two years
+
+```{r echo=FALSE, fig.cap="Relationship between peri-urban districts and type of appointment of governors"}
+unique(df2[, c("province", "district", "date", "suburb", "competitiveHiring")]) %>% 
+  group_by(date,suburb,competitiveHiring) %>% tally %>% filter(!is.na(suburb)) %>%
+  ggplot(aes(date,n,fill=competitiveHiring)) + geom_area(position="fill") + facet_wrap(~suburb) + 
+  theme_bw() + labs(x="", y="Ratio", fill="Appointment\nType") +
+  theme(axis.text.x=element_text(angle=90, vjust=.5)) + geom_vline(xintercept=nugIncept, col="navy")
+```
+
+```{r echo=FALSE, fig.cap="Change in recruitment type of district governors in 2 years"}
+ggplot(hire2yrs[!is.na(hire2yrs$competitiveHiring),], aes(competitiveHiring, Freq, fill = date)) + 
+  geom_col(position = "dodge") + theme_bw() + labs(x="", y="Ratio", fill="") + coord_flip()
+```
+&nbsp;
+
+### Districts with Mineral Deposits (Mines)
+
+Of 384 districts, 151 districts have at least one extractive mineral resource (mine). These districts are scattered across all provinces, except Paktia province which does not have any mine within its territory. The mineral resources have the highest concentration in Samangan, Laghman, Parwan, Herat, Logar and Uruzgan provinces where two-thirds or more of the districts have mineral deposits. The following map highlights districts that possess at least one extractive mineral resource (mine) within its territory.
+
+```{r mines, echo=FALSE, out.width="100%", fig.cap="Districts with mineral resources (mines)"}
+include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/mines.png")
+```
+
+Although literature provides evidence that natural resources (mines) can impact security, the data indicates only a weak relationship between security and mines, as districts with mines are slightly more insecure. It is worth noting that this study does not distinguish between types of extractive mineral resources, not whether the mines are being actively explored or not. Further research is required to explore different types of resources and their relationship with security.
+
+```{r echo=FALSE, fig.cap="Relationship between having a mineral deposit (mine) and security situation"}
+unique(df[, c("province", "district", "mines", "secure")]) %>% select(3:4) %>% table() %>% 
+  data.frame %>% ggplot(aes(mines, Freq, fill=secure)) +
+  geom_col(position = "fill") + theme_bw() + labs(x="", y="Ratio", fill="")
+```
+&nbsp;
+
+```{r include=FALSE}
+mineEdu <- filter(df2, date==as.Date("1396-12-30")) %>% {table(.$education, .$mines, useNA = "ifany")} %>% 
+  prop.table(2) %>% data.frame %>% 
+  filter(!is.na(Var1), !is.na(Var2), Var1 %in% c("Master's degree", "Bachelor degree")) %>%
+  group_by(Var2) %>% summarise(Freq = sum(Freq)) %>% mutate(Freq = format(round(Freq*100, 1), 1))
+```
+
+Governors of districts that possess natural resources (mines) are more educated (`r mineEdu[2,2]`% vs. `r mineEdu[1,2]`%). There is not a significant difference in terms of age between governors of districts with and without natural resources. In terms of ethnicity of governors, districts with natural resources have slightly more Pashtun and Hazara governors. Share of Tajik governors in districts with or without the natural resources endowment is identical.
+
+```{r echo=FALSE, fig.cap="Relationship between presence of mineral resource (mine) and district governors' age"}
+unique(df2[, c("province", "district", "date", "mines", "majEthnic")]) %>% 
+  group_by(date, mines, majEthnic) %>% tally %>% filter(!is.na(mines)) %>% 
+  ggplot(aes(date, n, fill = majEthnic)) + geom_area(position = "fill") + 
+  facet_wrap(~mines) + theme_bw() + labs(x="", y="Ratio", fill="Ethnicity") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = .5)) +
+  geom_vline(xintercept = nugIncept, col = "navy")
+
+mineHire <- filter(df2, date == as.Date("1396-12-30")) %>% .[, c("competitiveHiring", "mines")] %>% 
+  table(useNA = "ifany") %>% prop.table(2) %>% .[1,1:2] %>% {format(round(.*100,1), 1)} %>% data.frame
+```
+&nbsp;
+
+The most noticeable difference between districts with and without mineral resources (mines) is the appointment type of governors. Competitive appointments are significantly more prevalent (`r mineHire[2,]`%) in districts with mineral resources (mines) than district without mineral resources (`r mineHire[1,]`%).
+
+```{r echo=FALSE, fig.cap="Relationship between having extractive mineral resource/mine and district governor age"}
+unique(df2[, c("province", "district", "date", "mines", "competitiveHiring")]) %>% 
+  group_by(date, mines, competitiveHiring) %>% tally %>% filter(!is.na(mines)) %>% 
+  ggplot(aes(date, n, fill = competitiveHiring)) + geom_area(position = "fill") + 
+  facet_wrap(~mines) + theme_bw() + labs(x="", y="Ratio", fill="Appointment\nType") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = .5)) + geom_vline(xintercept = nugIncept, col = "navy")
+```
+&nbsp;
+
+### Opium Poppy Cultivation
+
+United Nations Offices on Drugs and Crime (UNODC) reported a record high opium poppy cultivation that amount to 328,355 hectares in 2017, which is a 63.1% increase from 2016. Helmand province alone accounted for 43.9% of total area under opium poppy cultivation in 2017 and records a 79.4% increase since 2016. The greatest increase however took place in Jawzjan and Faryab provinces, where the area used for opium poppy cultivation grew 691.7% and 680.0% respectively, between 2016 and 2017. Badghis province on the other hand was the only province where there was a reduction in opium poppy cultivation from 35,235 to 24,723 hectares of land--a 29.8% reduction. The following figure shows the country level cultivation of opium poppy since 1994.
+
+```{r opium, echo=FALSE, out.width="100%", fig.cap="Opium poppy cultivation in Afghanistan between 1994 and 2017 in hectares", fig.subcap="Sources: MCN/UNODC opium surveys 1994-2017. The vertical lines represent the upper and lower bounds of the 95% confidence interval"}
+include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/opium cultivation by year.png")
+```
+&nbsp;
+
+```{r include=FALSE}
+secOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "secure")]) %>% 
+  filter(!is.na(secure)) %>% 
+  {cor.test(.$cultivation, as.numeric(.$secure))} %>% {.[[4]]*100} %>% round(1)
+```
+
+There is a strong relationship between how large opium poppy cultivation is in a district and the leverl of (in)security in that district. A simple correlation between security and opium poppy cultivation yields a coefficient of `r secOpiumCorr`%, which is considered a very strong negative relationship. Furthermore, as the following graph visualizes, the collapsed districts account for the largest area of poppy cultivation in the country on average, which could indicate a causal relationship between security and opium poppy cultivation.
+
+```{r echo=FALSE, fig.height=3.5, fig.cap="Average opium poppy cultivation by security status"}
+filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
+  .[, c("date", "secure", "cultivation")] %>% filter(!is.na(secure)) %>% group_by(secure, date) %>% 
+  summarise(cultivation = mean(cultivation, na.rm = T)) %>% ggplot(aes(date, cultivation, fill = secure)) + 
+  geom_col(position = "dodge") + theme_bw() + labs(x="", y="Average Popply Cultivation in Hectares", fill="")
+
+hwOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "highway")]) %>% filter(!is.na(highway)) %>% 
+  {cor.test(.$cultivation, as.numeric(.$highway))} %>% {.[[4]]*100} %>% round(1)
+```
+
+Interestingly, districts with highway access have been larger producers of opium poppy. The relationship is visualized in the following graph and can be quantified using simple correlation which yields a coefficient of `r hwOpiumCorr`%, which is a relatively strong positive relationship.
+
+```{r echo=FALSE, fig.height=3.5, fig.cap="Average opium poppy cultivation by access to highway"}
+filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
+  .[, c("date", "highway", "cultivation")] %>% filter(!is.na(highway)) %>% group_by(highway, date) %>% 
+  summarise(cultivation = mean(cultivation, na.rm = T)) %>% ggplot(aes(date, cultivation, fill = highway)) + 
+  geom_col(position = "dodge") + theme_bw() + labs(x="", y="Average Popply Cultivation in Hectares", fill="")
+```
+
+```{r include=FALSE}
+mineOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "mines")]) %>% 
+  filter(!is.na(mines)) %>% {cor.test(.$cultivation, as.numeric(.$mines))} %>% {.[[4]]*100} %>% round(1)
+```
+
+Furthermore, mineral resources (mines) appear to have a negative relationship with opium poppy cultivation on average. The relationship has a correlation coefficient of `r mineOpiumCorr`%, which is considered somewhat weak and negative relationship.
+
+```{r echo=FALSE, fig.height=3.5, fig.cap="Average opium poppy cultivation by mineral resources (mines)"}
+filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
+  .[, c("date", "mines", "cultivation")] %>% filter(!is.na(mines)) %>% group_by(mines, date) %>% 
+  summarise(cultivation = mean(cultivation, na.rm = T)) %>% ggplot(aes(date, cultivation, fill = mines)) + 
+  geom_col(position = "dodge") + theme_bw() + labs(x="", y="Average Popply Cultivation in Hectares", fill="")
+
+borderOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "border")]) %>% filter(!is.na(border)) %>%
+  {cor.test(.$cultivation, as.numeric(.$border))} %>% {.[[4]]*100} %>% round(1)
+```
+
+```{r echo=FALSE}
+portOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "ports")]) %>% filter(!is.na(ports)) %>% 
+  {cor.test(.$cultivation, as.numeric(.$ports))} %>% {.[[4]]*100} %>% round(1)
+```
+
+Another interesting finding associated with opium poppy cultivation is the negative relationship between district grade and opium poppy harvest, with grade 1 districts cultivating more opium poppy than grade 2 and grade 3. This is somewhat a paradoxical finding given grade 1 districts on average have better security conditions. Additional research is required to explore reasons for this relationship.
+
+```{r echo=FALSE, fig.height=3.5, fig.cap="Average opium poppy cultivation by district grade"}
+filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
+  .[, c("date", "grade", "cultivation")] %>% group_by(grade, date) %>% 
+  summarise(cultivation = mean(cultivation, na.rm = T)) %>% 
+  ggplot(aes(date, cultivation, fill = grade)) + geom_col(position = "dodge") + theme_bw() + 
+  labs(x="", y="Average Popply Cultivation in Hectares", fill = "") + theme(legend.position = "top")
+```
+
+```{r include=FALSE}
+subOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "suburb")]) %>% 
+  filter(!is.na(suburb)) %>% {cor.test(.$cultivation, as.numeric(.$suburb))} %>% {.[[4]]*100} %>% round(1)
+```
+
+
+Furthermore, opium poppy cultivation does not differ significantly between peri-urban and not peri-urban districts. However, it is worth noting that peri-urban districts historically used to have greater opium poppy cultivation until 1395.
+
+```{r echo=FALSE, fig.height=3.5, fig.cap="Average opium poppy cultivation and peri-urban"}
+filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
+  .[, c("date", "suburb", "cultivation")] %>% group_by(suburb, date) %>% 
+  summarise(cultivation = mean(cultivation, na.rm = T)) %>% 
+  ggplot(aes(date, cultivation, fill = suburb)) + geom_col(position = "dodge") + 
+  theme_bw() + labs(x="", y="Average Popply Cultivation in Hectares", fill = "")
+```
+
+
+
+

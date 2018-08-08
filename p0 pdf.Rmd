@@ -1,0 +1,82 @@
+\newpage
+
+# EXECUTIVE SUMMARY
+
+This report is a first attempt to organize and analyse data on distrits, district governors and public perceptions, in order to identify correlations and provide the government with data on such possible correlations.
+
+The report is divided in three parts: part one established the profile of districts, per grade and per categorization (peri-urban, remote, with natural resources, with poppy cultivation, proximity with highways) as well as draws a profile of district governors (age, ethnicity, level of education, native/not-native from province where serving and type of appointment).
+
+The key findings of the first part are:
+[ADD]
+
+The second part looks into public perceptions on security, optimism, confidence in the judiciary, living conditions and corruption and analyses the correlations between these perceptions and the profiles of districts and governors.
+
+The key findings of the second part are:
+[ADD]
+
+In the third (conclusions) part, the report tries to present the overall correlations between these three dimensions (district profiles, governors’s profiles and perceptions). 
+
+This correlations analysis shows that:
+[ADD]
+
+
+\newpage
+
+# INTRODUCTION 
+
+Since the establishment of the Independent Directorate of Local Governance (IDLG), no study of districts and district governors has been undertaken. This study aims to provide a comprehensive description of districts and district governors across the country to answer questions related to their performance. On districts, this report provides basic information on district grades, access to highway, security status, frontier and non-frontier, peri-urban districts, districts with mineral resources, and opium poppy cultivation. On district governors, this report provides information on their age, educational attainment, ethnicity, nativity, and appointment type. On district governors’ performance, this report investigates how district governors’ characteristics are associated with public perceptions on governance, safety and services.
+
+The bulk of data for this study come from various departments of IDLG, Provincial Governors Offices (PGOs), and the annual survey of the Asia Foundation.  
+
+Some major findings of this reports are: 
+
+Districts:
+
+- Grade 1 districts have better security situation with majority of them considered secure (secure and somewhat secure).
+
+- On average, residents of districts with older governors are more optimistic about their future. Interestingly, residents of districts with greater opium poppy cultivation, despite having on average younger governors, are also more optimistic (Survey of the Afghan People).
+
+- Residents of districts where security is worse, report more corruption instances. Districts with larger opium poppy cultivation have less experience of corruption. Poppy cultivation is higher among districts with native governors.
+
+- Rural Afghans, particularly those residing in peri-urban districts and districts with access to highway, have more positive views about government's role in improving living conditions. Urban Afghans are more critical of government. Furthermore, insecurity appears to have a negative effect on perception of government improving living conditions of people.
+
+District Governors:
+
+- About half (51.7%) of district governors have a university degree, which is an increase from 45.5% since the inception of National Unity Government (NUG) in 2014.
+
+- On average, the age of district governors has increased by about 0.5 years since the inception of the NUG.
+
+- Half (50.3%) of the district governors are ethnic Pashtun, and a fourth (25.8%) are ethnic Tajik. The overall share of ethnic groups has not changed significantly since the inception of the NUG.
+
+- Majority (80.0%) of district governors serve in the provinces they are from.
+
+- Until end of 1396, the NUG had appointed 199 district governors, and additional 90 district governors were reshuffled due to various circumstances.
+
+- Security is a strong predictor of how district governors perform, both in terms of how people perceive the government (Survey of the Afghan People) and in terms of poppy cultivation (UNODC). Furthermore, districts where locals and their governor share the same ethnicity, feel more secure (Survey of the Afghan People).
+
+- District governors who are more educated and non-native to the province of their service appears to be correlated with greater confidence in the judicial system in the residents of their district. This relationship albeit strong does not indicate a causal relationship as district governors do not have direct role in justice sector.
+
+This first report provides evidence for a number of (intuitive) claims. Access to highway contributes to economic development and better security of the districts. The location of districts are important predictors of economic development and security. Peri-urban districts are more vibrant economically compared to non-peri-urban district. Frontier districts have the potential to economic development compared to remote ones given better security is ensured. It is the remote and central districts that are in danger of stagnant economic conditions and worse security conditions. 
+
+Higher education of district governors, non-nativity to the provinces they serve, and older age are predictors of relatively better security and a perception of a better judiciary. Yet, it is difficult to have older governors with higher educations. Laying off district governors and constant replacements and reshuffles may contribute to a lower sense of confidence in the judiciary and legitimacy of the central government. An almost absence of female district governors (with an exception of 3) begs the question whether gender equity is being considered at the grassroots level.
+
+This is the first time these data are collected and analyzed in a systematic manner to inform policymaking. There is a need to systematically gather and analyze these data on a regular basis for better local governance.
+
+\newpage
+
+# METHODOLOGY
+
+## Research Questions
+
+This report concerns two main questions. What are the characteristics of district governors, and which characteristics are associated with better performance among district governors.
+
+## Data
+
+The final data set is an amalgam of three distinct datasets. The primary data was information on district governors and districts which are internal data of the Independent Directorate of Local Governance (IDLG). Another source is the Survey of the Afghan People data, which is an annual survey of perceptions from a national sample of Afghans. The survey include data on perceptions about the district governors, security, and other relevant topics that are used in this analysis. Lastly, district level data from the opium poppy cultivation survey is used to enrich the analysis and control for the illicit drug economy’s effect on district governors’ performance, if any.
+
+The main shortcoming from the data part that needs noting is unavailability of data on some indicators related to districts and governors. For example, data on age of 9 district governors currently serving were unavailable at the time of data collection. The unavailability of data, also known as missing data, tends to be slightly higher for the past years. Missing data are not excluded from the descriptive analysis and they are labelled NA in graphs used throughout this report. Missing data are however excluded from the inferential analysis (Part 2) as such methods do not apply on missing data. 
+
+## Data analysis
+
+In this report, two main methods are used which corresponds with the type of analysis and answers sought. In Part 1 of the report, descriptive statistics and graphs are used to explore relationship between how characteristics of district governors and districts are associated. In this part, analysis and graphs are enriched with a longitudinal feature which illustrates the dynamic relationship between indicators of interest. In Part 2, inferential statistics such as logistic regression and ordered logistic regression are used to study the complex relationships between indicators of interest, such as districts’ and district governors’ characteristics with public perceptions on governance, safety and services.
+
