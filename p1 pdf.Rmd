@@ -188,7 +188,7 @@ df2[, c("province", "district", "date", "highway", "majEthnic")] %>% group_by(da
   labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x = element_text(angle = 90, vjust = .5))
 ```
 
-Governors of districts with highway access are more likely to be appointed through a competitive process. The trend also indicates growing competitive appointments in the districts with access to highways. In districts wihtout access to highways, there is a slight uptick in uncompetitive appointments in the past one year.
+Governors of districts with highway access are more likely to be appointed through a competitive process. The trend also indicates growing competitive appointments in the districts with access to highways. In districts without access to highways, there is a slight uptick in uncompetitive appointments in the past one year.
 
 ```{r echo=FALSE, fig.cap="Relationship between access to highway and district governors' appointment type"}
 df2[, c("province", "district", "date", "highway", "competitiveHiring")] %>% group_by(date, highway, competitiveHiring) %>% 
@@ -200,12 +200,13 @@ df2[, c("province", "district", "date", "highway", "competitiveHiring")] %>% gro
 \newpage
 
 ### Security Status of Districts
+
 ```{r include=FALSE}
 sec <- df2[df2$date == as.Date("1396-12-30"),] %>% count(secureBinary) %>% 
   filter(!is.na(secureBinary)) %>% mutate(perc = format(round((n/364)*100, 1), nsmall = 1))
 ```
 
-Providing security has been a key challenge for the NUG. Based on the IDLG's latest internal security assessment of permanent districts, `r sec[1,2]` districts (`r sec[1,3]`%) are considered secure and somewhat secure, `r sec[2,2]` districts (`r sec[2,3]`%) are considered somewhat insecure or fully insecure, and `r sec[3,2]` districts (`r sec[3,3]`%) have been marked as inactive as they have collapsed to the hands of anti-government elements The details such as methods of this classification and reasons behind collapse of those `r sec[3,2]` districts are beyond the scope of this report. This report however provides analysis of how security is correlated with other indicators associated with districts and district governors. The following table lists number of permanent districts by their security status.^[This analysis refers exclusively to permantent distrits (364) and therefore excludes the additional 23 districts.]
+Providing security has been a key challenge for the NUG. Based on the IDLG's latest internal security assessment of permanent districts, `r sec[1,2]` districts (`r sec[1,3]`%) are considered secure and somewhat secure, `r sec[2,2]` districts (`r sec[2,3]`%) are considered somewhat insecure or fully insecure, and `r sec[3,2]` districts (`r sec[3,3]`%) have been marked as inactive as they have collapsed to the hands of anti-government elements The details such as methods of this classification and reasons behind collapse of those `r sec[3,2]` districts are beyond the scope of this report. This report however provides analysis of how security is correlated with other indicators associated with districts and district governors. The following table lists number of permanent districts by their security status.^[This analysis refers exclusively to permanent districts (364) and therefore excludes the additional 23 districts.]
 
 ```{r secTable, echo=FALSE}
 unique(df[, c("province", "district", "secure")]) %>% .[[3]] %>% table() %>% 
@@ -217,7 +218,7 @@ unique(df[, c("province", "district", "secure")]) %>% .[[3]] %>% table() %>%
 include_graphics("~/Documents/My Consultancies/IDLG District Governor's Report/Maps/secure.png")
 ```
 
-Overall, sharing border with a neighboring country (frontier) does not appear to have a relationship with security situation in a district, as shown in figure below. That said, the country with which the district has a frontier has some correlation with security: For example, districts neighboring Pakistan and Turkmenistan – which are also the ones with higher level of poppy cultivation -  have relatively poorer security situation, when compared to distrits sharing a border with Iran or Tajikistan. This indicates a complex relationship security, opium poppy cultivation and frontier districts.
+Overall, sharing border with a neighboring country (frontier) does not appear to have a relationship with security situation in a district, as shown in figure below. That said, the country with which the district has a frontier has some correlation with security: For example, districts neighboring Pakistan and Turkmenistan, which are also the ones with higher level of poppy cultivation, have relatively poorer security situation, when compared to districts sharing a border with Iran or Tajikistan. This indicates a complex relationship security, opium poppy cultivation and frontier districts.
 
 ```{r echo=FALSE, fig.cap="Relationship between security and being a frontier district"}
 unique(df[, c("province", "district", "secure", "border")]) %>% select(3:4) %>% table() %>% data.frame %>% 
@@ -250,7 +251,7 @@ Relationship between security and highway access is not a robust one. The most i
 ```{r echo=FALSE, fig.cap="Relationship between security and access to highway"}
 unique(df[, c("province", "district", "secure", "highway")]) %>% select(3:4) %>% table %>% data.frame %>% 
   ggplot(aes(secure, Freq, fill=highway)) + geom_col(position = "fill") + theme_bw() + 
-  theme(axis.text.x = element_text(size = 8)) + labs(x="", fill="", y = "Ratio")
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = .5)) + labs(x="", fill="", y = "Ratio")
 ```
 
 District grade and security appears to have a positive relationship. As shown in the following graph, grade 1 districts have better security than grade 2 and 3 districts. Furthermore, some of grade 3 districts that are generally remote and sparsely populated are also among the most secure districts.
@@ -258,7 +259,7 @@ District grade and security appears to have a positive relationship. As shown in
 ```{r echo=FALSE, fig.cap="Relationship between security and district grade"}
 unique(df[, c("province", "district", "secure", "grade")]) %>% select(3:4) %>% table %>% data.frame %>% 
   ggplot(aes(secure, Freq, fill=grade)) + geom_col(position = "fill") + theme_bw() + 
-  theme(axis.text.x = element_text(size = 8)) + labs(x="", fill="", y = "Ratio")
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = .5)) + labs(x="", fill="", y = "Ratio")
 ```
 
 On average, district governors in secure districts are about 2 years older than governors in insecure districts. Furthermore, in terms of education, secure districts have slightly more university educated governors than insecure districts.
@@ -287,7 +288,7 @@ df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", 
   labs(x="", y="Ratio", fill="Ethnicity") + theme(axis.text.x=element_text(angle=90, vjust = .5))
 ```
 
-Insecure district on average had more governors that were appointed through an uncompetitive process than secure districts. However, there is a slight uptick in the share of uncompetitive hirings governors in secure districts in the past one year. This trend corresponds with an overall growth in uncompetitive recruitments of district governors, which is discussed in Section Appointment / Selection of District Governors.
+Insecure district on average had more governors that were appointed through an uncompetitive process than secure districts. However, there is a slight uptick in the share of uncompetitively hired governors in secure districts in the past one year. This trend corresponds with an overall growth in uncompetitive recruitments of district governors, which is discussed in Section Appointment / Selection of District Governors.
 
 ```{r echo=FALSE, fig.cap="Relationship between district security and type of appointment of district governors"}
 df2[!is.na(df2$secureBinary), c("province", "district", "date", "secureBinary", "competitiveHiring")] %>% 
@@ -363,8 +364,6 @@ sbDist <- unique(df[df$suburb=="Peri-Urban Districts", c("province", "district")
 There are `r sbDist` peri-urban districts that neighbor 34 provincial centers. Because of proximity to provincial centers, these districts have a better transportation infrastructure and have better economic conditions. Furthermore, peri-urban districts on average have lower rate of opium poppy cultivation, unless they border Pakistan and Iran (Section Poppy Opium Cultivation provides more details).
 
 Being a peri-urban district could imply greater connectivity and more population. As such, there are more districts in vicinity of provincial centers that are grade 1 and 2 than districts that are detached from provincial centers. The relation between access to highway and being a peri-urban district is a positive one, with peri-urban districts having more access to highway than districts detached from provincial centers.
-
-[map of peri-urban districts: missing]
 
 Security-wise, peri-urban districts are more likely to be completely "secure" or completely "insecure", compared to not peri-urban districts. Not peri-urban districts are more likely to have moderate security status, such as somewhat secure or somewhat insecure, compared to peri-urban districts. Additionally, most districts that have collapsed are among districts that are remote and not peri-urban districts, e.g. only two peri-urban districts have collapsed.
 
@@ -478,7 +477,7 @@ secOpiumCorr <- unique(df2[, c("province", "district", "year", "cultivation", "s
   {cor.test(.$cultivation, as.numeric(.$secure))} %>% {.[[4]]*100} %>% round(1)
 ```
 
-There is a strong relationship between how large opium poppy cultivation is in a district and the leverl of (in)security in that district. A simple correlation between security and opium poppy cultivation yields a coefficient of `r secOpiumCorr`%, which is considered a very strong negative relationship. Furthermore, as the following graph visualizes, the collapsed districts account for the largest area of poppy cultivation in the country on average, which could indicate a causal relationship between security and opium poppy cultivation.
+There is a strong relationship between how large opium poppy cultivation is in a district and the level of (in)security in that district. A simple correlation between security and opium poppy cultivation yields a coefficient of `r secOpiumCorr`%, which is considered a very strong negative relationship. Furthermore, as the following graph visualizes, the collapsed districts account for the largest area of poppy cultivation in the country on average, which could indicate a causal relationship between security and opium poppy cultivation.
 
 ```{r echo=FALSE, fig.cap="Average opium poppy cultivation by security status"}
 filter(df2, date %in% c(as.Date("1396-12-30"), as.Date("1395-12-30"), as.Date("1394-12-30"), as.Date("1393-12-30"))) %>% 
